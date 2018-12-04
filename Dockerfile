@@ -19,4 +19,7 @@ RUN pip install -r ${PROJECT_DIR}/requirements.txt
 # Copy source code to image
 COPY ./contact_api ${PROJECT_DIR}/contact_api
 
+# Initialize sqlite db
+RUN python -c "from contact_api import db; db.init_db()" 
+
 ENTRYPOINT ["flask", "run", "--host", "0.0.0.0"]
