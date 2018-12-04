@@ -41,3 +41,8 @@ def handle_bad_request(exception):
     response = jsonify(err_msg)
     response.status_code = exception.code
     return response
+
+
+if __name__ == "__main__":
+    app.run()
+    db.init_db()
