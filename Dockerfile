@@ -17,6 +17,6 @@ RUN source ${VENV_DIR}/bin/activate
 RUN pip install -r ${PROJECT_DIR}/requirements.txt
 
 # Copy source code to image
-COPY ./contact_api ${PROJECT_DIR}/contact_api
+COPY ./contact_api ${SOURCE_DIR}
 
 ENTRYPOINT ["flask", "run", "--host", "0.0.0.0"]
