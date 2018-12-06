@@ -35,6 +35,6 @@ supported fields: "email", "name", "company"
 To update an existing contact send a PUT request with json body to `/contact/update`.
 supported fields: "email", "name", "company"
 
-###Delete Contact
+### Delete Contact
 To delete a contact send a DELETE request with json body to `/contact/delete`.
 supported fields: "id"
