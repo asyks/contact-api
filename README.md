@@ -5,17 +5,21 @@ Python Take-Home Assignment: Contact API for Urban Airship Web Team
 
 ### With Docker and Docker Compose
 To build and run
+
 ```docker-compose up```
 
 To build only
+
 ```docker-compose build --force-rm```
 
 ### With Docker only
 Build the container
+
 ```docker build -t contact-api .```
 
 Run the container
-```docker run -p 127.0.0.1:5000:5000 -it contact-api```
+
+```docker run --env-file=vars.env -p 127.0.0.1:5000:5000 -it contact-api```
 
 ## Endpoints
 
@@ -44,3 +48,8 @@ supported fields: "id"
 As I was working on the project I wrote a test script `test.sh` for curl-ing
 the endpoints with different data/headers/methods. I tried to add curls for all
 the required functionality, as well as several error responses.
+
+## Basic Auth
+
+To change the creds for the basic auth implementation set the env vars:
+USERNAME and PASSWORD. The default creds are stored in `vars.env`.

@@ -1,4 +1,5 @@
 from functools import wraps
+import os
 
 from flask import Flask
 from flask import jsonify
@@ -62,7 +63,10 @@ def error_resp_msg(msg):
 
 
 def check_auth(username, password):
-    return username == 'admin' and password == 'secret'
+    return (
+        username == os.environ['USERNAME'] and
+        password == os.environ['PASSWORD']
+    )
 
 
 def requires_auth(view):

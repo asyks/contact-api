@@ -9,3 +9,5 @@ services:
         - '5000:5000'
       volumes: 
         - './contact_api:/opt/contact-api/contact_api'
+      env_file:
+        - vars.env
