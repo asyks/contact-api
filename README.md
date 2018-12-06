@@ -51,5 +51,14 @@ the required functionality, as well as several error responses.
 
 ## Basic Auth
 
-To change the creds for the basic auth implementation set the env vars:
-USERNAME and PASSWORD. The default creds are stored in `vars.env`.
+I stuck to having a single set of creds. To change the creds set the env vars:
+USERNAME and PASSWORD. The default creds are stored in `vars.env`. I adapted my
+basic auth solution from [this flask snippet](http://flask.pocoo.org/snippets/8/).
+
+## Data
+
+I decided to go with a sqlite in-memory database, as it seemed to be an easy
+and reliable way to create a persistent (between app restarts) datastore that does
+not write to the filesystem. I stuck with a single model/table for Contact, and
+a super minimal number of fields: id, name, company, email. The primary key is
+id, and email is the only required field.
