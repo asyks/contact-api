@@ -1,3 +1,5 @@
+from functools import wraps
+
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -6,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import BadRequest
 from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import MethodNotAllowed
+from werkzeug.exceptions import Unauthorized
 
 
 app = Flask(__name__)
@@ -58,6 +61,21 @@ def error_resp_msg(msg):
     }
 
 
+def check_auth(username, password):
+    return username == 'admin' and password == 'secret'
+
+
+def requires_auth(view):
+    @wraps(view)
+    def auth_wrapper(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            raise Unauthorized
+        return view(*args, **kwargs)
+
+    return auth_wrapper
+
+
 @app.route("/")
 def hello():
     msg = success_resp_msg("contact-api by asyks")
@@ -66,6 +84,7 @@ def hello():
 
 
 @app.route("/contact", methods=["GET"])
+@requires_auth
 def get_one_contact():
     if "id" not in request.json:
         raise InternalServerError("Field 'id' not found in request body")
@@ -78,6 +97,7 @@ def get_one_contact():
 
 
 @app.route("/contact/create", methods=["POST"])
+@requires_auth
 def create_contact():
     contact = Contact(
         name=request.json["name"],
@@ -93,6 +113,7 @@ def create_contact():
 
 
 @app.route("/contact/update", methods=["PUT"])
+@requires_auth
 def update_contact():
     if "id" not in request.json:
         raise InternalServerError("Field 'id' not found in request body")
@@ -152,6 +173,7 @@ def handle_bad_request(exception):
     return response
 
 
+@app.errorhandler(Unauthorized)
 @app.errorhandler(InternalServerError)
 @app.errorhandler(MethodNotAllowed)
 def handle_error(exception):

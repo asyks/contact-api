@@ -92,6 +92,12 @@ main () {
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/update \
     -w "${RETURN_HEADER_STR}"
+
+  printf "Expect unauthorized\n"
+  curl -H "${REQUEST_HEADER}" -X POST \
+    -d '{"email": "ioo@bar.com", "name": "laz", "company": "acme"}' \
+    ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
+    -w "${RETURN_HEADER_STR}"
 }
 
 main "${@:-}"
