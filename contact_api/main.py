@@ -90,7 +90,6 @@ def get_one_contact():
         raise InternalServerError("Field 'id' not found in request body")
 
     contact = Contact.get_single(id=request.json['id'])
-
     msg = success_resp_msg(contact.data_dict)
 
     return jsonify(msg)
@@ -119,11 +118,10 @@ def update_contact():
         raise InternalServerError("Field 'id' not found in request body")
 
     contact = Contact.get_single(id=request.json['id'])
-
     if "name" in request.json:
         contact.name = request.json["name"]
     if "company" in request.json:
-        contact.name = request.json["company"]
+        contact.company = request.json["company"]
     if "email" in request.json:
         contact.email = request.json["email"]
 
