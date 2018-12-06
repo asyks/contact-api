@@ -57,22 +57,25 @@ main () {
     -w "${RETURN_HEADER_STR}"
 
   printf "Update a contact\n"
-  curl -H "${REQUEST_HEADER}" -X PUT -d '{"id": 1, "email": "foo@slash.com"}' \
+  curl -H "${REQUEST_HEADER}" -X PUT \
+    -d '{"id": 1, "email": "foo@slash.com"}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/update \
     -w "${RETURN_HEADER_STR}"
 
   printf "Delete a contact\n"
-  curl -H "${REQUEST_HEADER}" -X DELETE -d '{"id": 1}' \
+  curl -H "${REQUEST_HEADER}" -X DELETE \
+    -d '{"id": 1}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/delete \
     -w "${RETURN_HEADER_STR}"
 
   printf "\n------------------------\n"
 
-  # Errors
+  # Error Requests
   printf "Expect contact does not exist\n"
-  curl -H "${REQUEST_HEADER}" -X PUT -d '{"id": 5555, "email": "foo@slash.com"}' \
+  curl -H "${REQUEST_HEADER}" -X PUT \
+    -d '{"id": 5555, "email": "foo@slash.com"}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/update \
     -w "${RETURN_HEADER_STR}"
@@ -83,13 +86,15 @@ main () {
     -w "${RETURN_HEADER_STR}"
 
   printf "Expect invalid json request body\n"
-  curl -H "${REQUEST_HEADER}" -X POST -d '{a}' \
+  curl -H "${REQUEST_HEADER}" -X POST \
+    -d '{a}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
     -w "${RETURN_HEADER_STR}"
 
   printf "Expect internal server error\n"
-  curl -H "${REQUEST_HEADER}" -X PUT -d '{"email": "foo@slash.com"}' \
+  curl -H "${REQUEST_HEADER}" -X PUT \
+    -d '{"email": "foo@slash.com"}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/update \
     -w "${RETURN_HEADER_STR}"
