@@ -25,23 +25,32 @@ Run the container
 
 ### Create Contact
 To create a contact record send a POST request with json body to `/contact/create`.
+
+required json fields: "email"
 supported fields: "email", "name", "company"
 
 ### Get one Contact
 To get a single contact by id send a GET request with json body to `/contact`.
-supported fields: "id"
+
+required json fields: "id"
 
 ### Get multiple Contacts
 To get a list of contacts send a GET request with or without a json body to `/contacts`.
-supported fields: "email", "name", "company"
+Supplying a json body will make the app attempt to filter contact records by the
+provided fields.
+
+supported json fields: "email", "name", "company", "active"
 
 ### Update Contact
 To update an existing contact send a PUT request with json body to `/contact/update`.
-supported fields: "email", "name", "company"
+
+required json fields: "id"
+supported json fields: "email", "name", "company"
 
 ### Delete Contact
 To delete a contact send a DELETE request with json body to `/contact/delete`.
-supported fields: "id"
+
+required json fields: "id"
 
 ## Test script
 
@@ -60,5 +69,8 @@ basic auth solution from [this flask snippet](http://flask.pocoo.org/snippets/8/
 I decided to go with a sqlite in-memory database, as it seemed to be an easy
 and reliable way to create a persistent (between app restarts) datastore that does
 not write to the filesystem. I stuck with a single model/table for Contact, and
-a super minimal number of fields: id, name, company, email. The primary key is
-id, and email is the only required field.
+a super minimal number of fields: id, name, company, email, active, updated_by.
+The primary key is id, and email is the only required field. The active field
+stores a contact record's "delete" status, when deleted a contact is changed to
+active=False. The updated_by field stores a reference to the authenticated user's
+username, who made the last change to the record.

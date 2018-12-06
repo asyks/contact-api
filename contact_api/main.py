@@ -25,9 +25,11 @@ db = SQLAlchemy(app)
 
 class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    active = db.Column(db.Boolean, default=True, nullable=False)
     name = db.Column(db.String(80), nullable=True)
     company = db.Column(db.String(80), nullable=True)
     email = db.Column(db.String(120), nullable=False)
+    updated_by = db.Column(db.String(120), nullable=False)
 
     @property
     def data_dict(self):
@@ -36,13 +38,16 @@ class Contact(db.Model):
             "name": self.name,
             "company": self.company,
             "email": self.email,
+            "updated_by": self.updated_by,
         }
 
     @classmethod
     def get_single(cls, **kwargs):
-        inst = cls.query.filter_by(**kwargs).first()
+        inst = cls.query.filter_by(active=True, **kwargs).first()
         if not inst:
-            raise InternalServerError("Contact does not exist")
+            raise InternalServerError(
+                "Contact does not exist, or has been deleted"
+            )
 
         return inst
 
@@ -64,8 +69,8 @@ def error_resp_msg(msg):
 
 def check_auth(username, password):
     return (
-        username == os.environ['USERNAME'] and
-        password == os.environ['PASSWORD']
+        username == os.environ["USERNAME"] and
+        password == os.environ["PASSWORD"]
     )
 
 
@@ -88,12 +93,11 @@ def hello():
 
 
 @app.route("/contact", methods=["GET"])
-@requires_auth
 def get_one_contact():
     if "id" not in request.json:
         raise InternalServerError("Field 'id' not found in request body")
 
-    contact = Contact.get_single(id=request.json['id'])
+    contact = Contact.get_single(id=request.json["id"])
     msg = success_resp_msg(contact.data_dict)
 
     return jsonify(msg)
@@ -102,10 +106,16 @@ def get_one_contact():
 @app.route("/contact/create", methods=["POST"])
 @requires_auth
 def create_contact():
+    if "email" not in request.json:
+        raise InternalServerError(
+            "Field 'email' is required but was not found in request body"
+        )
+
     contact = Contact(
-        name=request.json["name"],
-        company=request.json["company"],
+        name=request.json.get("name"),
+        company=request.json.get("company"),
         email=request.json["email"],
+        updated_by=request.authorization.username,
     )
     db.session.add(contact)
     db.session.commit()
@@ -121,7 +131,8 @@ def update_contact():
     if "id" not in request.json:
         raise InternalServerError("Field 'id' not found in request body")
 
-    contact = Contact.get_single(id=request.json['id'])
+    contact = Contact.get_single(id=request.json["id"])
+    contact.updated_by = request.authorization.username
     if "name" in request.json:
         contact.name = request.json["name"]
     if "company" in request.json:
@@ -139,12 +150,14 @@ def update_contact():
 
 
 @app.route("/contact/delete", methods=["DELETE"])
+@requires_auth
 def delete_contact():
     if "id" not in request.json:
         raise InternalServerError("Field 'id' not found in request body")
 
-    contact = Contact.get_single(id=request.json['id'])
-    db.session.delete(contact)
+    contact = Contact.get_single(id=request.json["id"])
+    contact.updated_by = request.authorization.username
+    contact.active = False
     db.session.commit()
 
     msg = success_resp_msg(contact.data_dict)
@@ -155,7 +168,12 @@ def delete_contact():
 @app.route("/contacts", methods=["GET"])
 def get_contacts():
     if request.json:
-        contacts = Contact.query.filter_by(**request.json).all()
+        if "active" in request.json:
+            raise InternalServerError(
+                "Field 'active' is not supported for querying"
+            )
+
+        contacts = Contact.query.filter_by(active=True, **request.json).all()
     else:
         contacts = Contact.query.all()
 
