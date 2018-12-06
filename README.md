@@ -27,7 +27,8 @@ Run the container
 To create a contact record send a POST request with json body to `/contact/create`.
 
 required json fields: "email"
-supported fields: "email", "name", "company"
+
+supported json fields: "email", "name", "company"
 
 ### Get one Contact
 To get a single contact by id send a GET request with json body to `/contact`.
@@ -45,6 +46,7 @@ supported json fields: "email", "name", "company", "active"
 To update an existing contact send a PUT request with json body to `/contact/update`.
 
 required json fields: "id"
+
 supported json fields: "email", "name", "company"
 
 ### Delete Contact
