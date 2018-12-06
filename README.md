@@ -38,3 +38,9 @@ supported fields: "email", "name", "company"
 ### Delete Contact
 To delete a contact send a DELETE request with json body to `/contact/delete`.
 supported fields: "id"
+
+## Test script
+
+As I was working on the project I wrote a test script `test.sh` for curl-ing
+the endpoints with different data/headers/methods. I tried to add curls for all
+the required functionality, as well as several error responses.
