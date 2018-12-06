@@ -1,93 +1,163 @@
 from flask import Flask
 from flask import jsonify
 from flask import request
-from flask import g
 
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import BadRequest
-import sqlite3
+from werkzeug.exceptions import InternalServerError
+from werkzeug.exceptions import MethodNotAllowed
 
 
 app = Flask(__name__)
 
 app.config.update({
-    "DATABASE": "file::memory:?cache=shared",
+    "SQLALCHEMY_DATABASE_URI": "sqlite://",
+    "SQLALCHEMY_TRACK_MODIFICATIONS": True,
     "DEBUG": True,
-    "SECRET_KEY": 'devkey',
-    "USERNAME": 'admin',
-    "PASSWORD": 'default',
 })
 
-
-def connect_db():
-    return_val = sqlite3.connect(app.config['DATABASE'])
-    return_val.row_factory = sqlite3.Row
-
-    return return_val
+db = SQLAlchemy(app)
 
 
-def get_db():
-    if not hasattr(g, 'sqlite_db'):
-        g.sqlite_db = connect_db()
+class Contact(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=True)
+    company = db.Column(db.String(80), nullable=True)
+    email = db.Column(db.String(120), nullable=False)
 
-    return g.sqlite_db
+    @property
+    def data_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "company": self.company,
+            "email": self.email,
+        }
+
+    @classmethod
+    def get_single(cls, **kwargs):
+        inst = cls.query.filter_by(**kwargs).first()
+        if not inst:
+            raise InternalServerError("Contact does not exist")
+
+        return inst
 
 
-@app.before_first_request
-def init_db():
-    db = get_db()
-    db.cursor().executescript(
-        """CREATE TABLE contacts (
-            id integer primary key autoincrement,
-            email text,
-            name text
-        );"""
-    )
-    insert_one_contact('ba@ba', 'crab')  # REMOVE! just test seeding the db
-    print('Initialized the database.')
+db.create_all()
 
 
-def insert_one_contact(email, name):
-    db = get_db()
-    db.execute(
-        "INSERT INTO contacts (email, name) VALUES (?, ?);",
-        (email, name,),
-    )
+def success_resp_msg(data):
+    return {
+        "status": "success", "data": data
+    }
+
+
+def error_resp_msg(msg):
+    return {
+        "status": "error", "message": msg
+    }
 
 
 @app.route("/")
 def hello():
-    msg = {
-        "status": "success",
-        "data": "contact-api by asyks",
-    }
+    msg = success_resp_msg("contact-api by asyks")
+
+    return jsonify(msg)
+
+
+@app.route("/contact", methods=["GET"])
+def get_one_contact():
+    if "id" not in request.json:
+        raise InternalServerError("Field 'id' not found in request body")
+
+    contact = Contact.get_single(id=request.json['id'])
+
+    msg = success_resp_msg(contact.data_dict)
 
     return jsonify(msg)
 
 
 @app.route("/contact/create", methods=["POST"])
 def create_contact():
-    insert_one_contact(request.json['email'], request.json['name'])
-    db = get_db()
-    cur = db.execute('SELECT * FROM contacts;')
-    total = len(cur.fetchall())
+    contact = Contact(
+        name=request.json["name"],
+        company=request.json["company"],
+        email=request.json["email"],
+    )
+    db.session.add(contact)
+    db.session.commit()
 
-    msg = {
-        "status": "success",
-        "data": f"contact created: {request.json}, total: {total}",
-    }
+    msg = success_resp_msg(contact.data_dict)
+
+    return jsonify(msg)
+
+
+@app.route("/contact/update", methods=["PUT"])
+def update_contact():
+    if "id" not in request.json:
+        raise InternalServerError("Field 'id' not found in request body")
+
+    contact = Contact.get_single(id=request.json['id'])
+
+    if "name" in request.json:
+        contact.name = request.json["name"]
+    if "company" in request.json:
+        contact.name = request.json["company"]
+    if "email" in request.json:
+        contact.email = request.json["email"]
+
+    db.session.commit()
+
+    msg = success_resp_msg(contact.data_dict)
+    response = jsonify(msg)
+    response.status_code = 201
+
+    return response
+
+
+@app.route("/contact/delete", methods=["DELETE"])
+def delete_contact():
+    if "id" not in request.json:
+        raise InternalServerError("Field 'id' not found in request body")
+
+    contact = Contact.get_single(id=request.json['id'])
+    db.session.delete(contact)
+    db.session.commit()
+
+    msg = success_resp_msg(contact.data_dict)
+
+    return jsonify(msg)
+
+
+@app.route("/contacts", methods=["GET"])
+def get_contacts():
+    if request.json:
+        contacts = Contact.query.filter_by(**request.json).all()
+    else:
+        contacts = Contact.query.all()
+
+    msg = success_resp_msg([contact.data_dict for contact in contacts])
 
     return jsonify(msg)
 
 
 @app.errorhandler(BadRequest)
 def handle_bad_request(exception):
-    err_msg = {
-        "status": "error",
-        "message": (
-            f"{exception.name}: JSON could not be "
-            "decoded from request body"
-        )
-    }
+    err_msg = error_resp_msg(
+        f"{exception.name}: JSON could not be decoded from request body"
+    )
+    response = jsonify(err_msg)
+    response.status_code = exception.code
+
+    return response
+
+
+@app.errorhandler(InternalServerError)
+@app.errorhandler(MethodNotAllowed)
+def handle_error(exception):
+    err_msg = error_resp_msg(
+        f"{exception.name}: {exception.description}"
+    )
     response = jsonify(err_msg)
     response.status_code = exception.code
 
