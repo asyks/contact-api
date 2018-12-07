@@ -89,7 +89,9 @@ fields are:
 ## TODO
 
 Given more time to work on the project, there's a number of things I'd add or
-improve. In rough order of importance:
+improve. I hadn't worked with flask in a while, and had to brush up on some of the
+basic concepts. In many cases I chose simple solutions the I felt met the
+requirements in leiu of more robust options. In rough order of importance:
 
   * Moving the model class to a separate module - keeping the model and views in
   the same module seemed like the easiest way to ensure that everything references
@@ -105,5 +107,5 @@ improve. In rough order of importance:
   * Sanitizing json field values - I've read that SQLAlchemy handles quoting special 
   characters in inputs on its own, so this may not be necessary, but given more time
   I'd do further reading/testing to verify whether that is in fact the case.
-  * Improving error handling
+  * Improving error handling and responses
   * Adding logging where appropriate
