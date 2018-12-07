@@ -151,7 +151,7 @@ def validate_query_field_names(view):
 
 @app.route("/")
 def hello():
-    msg = success_resp_msg("contact-api by asyks")
+    msg = success_resp_msg("contact-api by asyks, hello!")
 
     return jsonify(msg)
 

@@ -25,40 +25,34 @@ Run the container
 
 ### Create Contact
 To create a contact record send a POST request with json body to `/contact/create`.
-
-required json fields: "email"
-
-supported json fields: "email", "name", "company"
+On success a 200 response containing the record should be sent to the client.
 
 ### Get one Contact
 To get a single contact by id send a GET request with json body to `/contact`.
-
-required json fields: "id"
+On success a 200 response containing the record should be sent to the client.
+The field id is required.
 
 ### Get multiple Contacts
 To get a list of contacts send a GET request with or without a json body to `/contacts`.
-Supplying a json body will make the app attempt to filter contact records by the
-provided fields.
-
-supported json fields: "email", "name", "company", "active"
+Contact records can be filtered by supplying json fields in the request body.
+The supported fields are: email and company. If both fields are supplied the
+result with be anded together, so email and company must match the values supplied.
 
 ### Update Contact
 To update an existing contact send a PUT request with json body to `/contact/update`.
-
-required json fields: "id"
-
-supported json fields: "email", "name", "company"
+On success a 201 response containing the record should be sent to the client.
+The field id is required.
 
 ### Delete Contact
 To delete a contact send a DELETE request with json body to `/contact/delete`.
-
-required json fields: "id"
+On success a 200 response containing the record should be sent to the client.
+The field id is required.
 
 ## Test script
 
 As I was working writing the endpoints I wrote a test script `test.sh` for
 curl-ing them with different data/headers/methods. I tried to add curls for all
-the required functionality, as well as several error responses.
+the required functionality, as well as several error responses. `
 
 ## Basic Auth
 
@@ -70,9 +64,17 @@ basic auth solution from [this flask snippet](http://flask.pocoo.org/snippets/8/
 
 I decided to go with a sqlite in-memory database, as it seemed to be an easy
 and reliable way to create a persistent (between app restarts) datastore that does
-not write to the filesystem. I stuck with a single model/table for Contact, and
-a super minimal number of fields: id, name, company, email, active, updated_by.
-The primary key is id, and email is the only required field. The active field
-stores a contact record's "delete" status, when deleted a contact is changed to
-active=False. The updated_by field stores a reference to the authenticated user's
-username, who made the last change to the record.
+not write to the filesystem. I stuck with a single model/table for Contact, the
+fields are:
+
+  * id -  primary key
+  * active - bool, stores delete status, if True the record is hidden from views
+  * first_name - string
+  * last_name - string
+  * company - string
+  * email - string
+  * home_phone - integer
+  * mobile_phone - integer
+  * address - string
+  * address_2 - string
+  * updated_by - stores the username of the user who last changed the record
