@@ -78,8 +78,8 @@ basic auth solution from [this flask snippet](http://flask.pocoo.org/snippets/8/
 
 I decided to go with a sqlite in-memory database, as it seemed to be an easy
 and reliable way to create a persistent (between app restarts) datastore that does
-not write to the filesystem. I stuck with a single model/table for Contact, the
-fields are:
+not write to the filesystem. I stuck with a single model/table for Contact, with
+no unique fields. The fields of the Contact model are:
 
   * id -  primary key
   * active - bool, stores delete status, if True the record is hidden from views
@@ -110,7 +110,7 @@ requirements in leiu of more robust options. In rough order of importance:
   field somewhat arbitrarily, and would like to take another pass over them and
   make adjustments. I'd also like to do some simple validation of fields for storing
   standard things like email addresses, and phone numbers. It looks like this could
-  be done pretty easily using Flask forms.
+  be done pretty easily using Flask-WTF and/or WTForms.
   * Sanitizing json field values - I've read that SQLAlchemy handles quoting special 
   characters in inputs on its own, so this may not be necessary, but given more time
   I'd do further reading/testing to verify whether that is in fact the case.
