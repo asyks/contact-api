@@ -1,6 +1,3 @@
-from functools import wraps
-import os
-
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -10,6 +7,8 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import MethodNotAllowed
 from werkzeug.exceptions import Unauthorized
+
+from . import wrappers
 
 
 app = Flask(__name__)
@@ -77,78 +76,6 @@ def error_resp_msg(msg):
     }
 
 
-def check_auth(username, password):
-    return (
-        username == os.environ["USERNAME"] and
-        password == os.environ["PASSWORD"]
-    )
-
-
-def requires_auth(view):
-    @wraps(view)
-    def auth_wrapper(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            raise Unauthorized
-        return view(*args, **kwargs)
-
-    return auth_wrapper
-
-
-def requires_id(view):
-    @wraps(view)
-    def id_wrapper(*args, **kwargs):
-        if "id" not in request.json:
-            raise BadRequest("Field 'id' not found in request body")
-        return view(*args, **kwargs)
-
-    return id_wrapper
-
-
-def validate_input_field_names(view):
-    @wraps(view)
-    def validate_wrapper(*args, **kwargs):
-        json_data = request.json.copy()
-        if "id" in request.json:
-            json_data.pop("id")
-
-        valid_fields = {
-            "first_name",
-            "last_name",
-            "company",
-            "email",
-            "home_phone",
-            "mobile_phone",
-            "address",
-            "address_2",
-        }
-
-        if not valid_fields.intersection(json_data) == json_data.keys():
-            raise BadRequest(
-                f"Json input was invalid, valid fields are {valid_fields}"
-            )
-        return view(*args, **kwargs)
-
-    return validate_wrapper
-
-
-def validate_query_field_names(view):
-    @wraps(view)
-    def validate_wrapper(*args, **kwargs):
-        json_data = getattr(request, "json", None)
-        valid_fields = {"company", "email"}
-
-        if json_data and not (
-            valid_fields.intersection(json_data) == json_data.keys()
-        ):
-            raise BadRequest(
-                f"Query was invalid, valid fields are {valid_fields}"
-            )
-        return view(*args, **kwargs)
-
-    return validate_wrapper
-
-
 @app.route("/")
 def hello():
     msg = success_resp_msg("contact-api by asyks, hello!")
@@ -165,8 +92,8 @@ def get_one_contact():
 
 
 @app.route("/contact/create", methods=["POST"])
-@requires_auth
-@validate_input_field_names
+@wrappers.requires_auth
+@wrappers.validate_input_field_names
 def create_contact():
     contact = Contact(
         **request.json,
@@ -181,9 +108,9 @@ def create_contact():
 
 
 @app.route("/contact/update", methods=["PUT"])
-@requires_auth
-@requires_id
-@validate_input_field_names
+@wrappers.requires_auth
+@wrappers.requires_id
+@wrappers.validate_input_field_names
 def update_contact():
     if "id" not in request.json:
         raise BadRequest("Field 'id' not found in request body")
@@ -207,8 +134,8 @@ def update_contact():
 
 
 @app.route("/contact/delete", methods=["DELETE"])
-@requires_auth
-@requires_id
+@wrappers.requires_auth
+@wrappers.requires_id
 def delete_contact():
     if "id" not in request.json:
         raise BadRequest("Field 'id' not found in request body")
@@ -224,7 +151,7 @@ def delete_contact():
 
 
 @app.route("/contacts", methods=["GET"])
-@validate_query_field_names
+@wrappers.validate_query_field_names
 def get_contacts():
     query_args = [Contact.active.is_(True)]
 
