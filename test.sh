@@ -51,16 +51,16 @@ main () {
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contacts \
     -w "${RETURN_HEADER_STR}"
 
-  printf "Get a conatct by id\n"
-  curl -H "${REQUEST_HEADER}" -X GET -d '{"id": 1}' \
-    ${DEFAULT_HOST}:${DEFAULT_PORT}/contact \
-    -w "${RETURN_HEADER_STR}"
-
   printf "Update a contact\n"
   curl -H "${REQUEST_HEADER}" -X PUT \
     -d '{"id": 1, "email": "foo@slash.com"}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/update \
+    -w "${RETURN_HEADER_STR}"
+
+  printf "Get a conatct by id\n"
+  curl -H "${REQUEST_HEADER}" -X GET -d '{"id": 1}' \
+    ${DEFAULT_HOST}:${DEFAULT_PORT}/contact \
     -w "${RETURN_HEADER_STR}"
 
   printf "Delete a contact\n"

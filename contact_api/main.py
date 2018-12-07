@@ -97,8 +97,8 @@ def get_one_contact():
 @wrappers.validate_input_field_names
 def create_contact():
     contact = Contact(
-        **request.json,
         updated_by=request.authorization.username,
+        **request.json
     )
     db.session.add(contact)
     db.session.commit()
@@ -113,18 +113,11 @@ def create_contact():
 @wrappers.requires_id
 @wrappers.validate_input_field_names
 def update_contact():
-    if "id" not in request.json:
-        raise BadRequest("Field 'id' not found in request body")
+    data = request.json.copy()
+    data["updated_by"] = request.authorization.username
 
+    Contact.query.filter_by(id=request.json["id"], active=True).update(data)
     contact = Contact.get_single(id=request.json["id"])
-    contact.updated_by = request.authorization.username
-    if "name" in request.json:
-        contact.name = request.json["name"]
-    if "company" in request.json:
-        contact.company = request.json["company"]
-    if "email" in request.json:
-        contact.email = request.json["email"]
-
     db.session.commit()
 
     msg = success_resp_msg(contact.data_dict)
@@ -138,9 +131,6 @@ def update_contact():
 @wrappers.requires_auth
 @wrappers.requires_id
 def delete_contact():
-    if "id" not in request.json:
-        raise BadRequest("Field 'id' not found in request body")
-
     contact = Contact.get_single(id=request.json["id"])
     contact.updated_by = request.authorization.username
     contact.active = False
