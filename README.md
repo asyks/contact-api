@@ -85,3 +85,25 @@ fields are:
   * address - string
   * address_2 - string
   * updated_by - stores the username of the user who last changed the record
+
+## TODO
+
+Given more time to work on the project, there's a number of things I'd add or 
+improve. In rough order of importance:
+
+  * Moving the model class to a separate module - keeping the model and views in
+  the same module seemed like the easiest way to ensure that everything references
+  the same app instance, but I'd like to look more into using an app factory.
+  * Adding pagination to the get_contacts endpoint - This is the only endpoint that
+  can return multiple records, it returns all active contacts by default, and should
+  ideally support pagination to reduce load on the db for larger datasets.
+  * Fine tuning model fields - I chose the datatypes and lengths for each
+  field somewhat arbitrarily, and would like to take another pass over them and
+  make adjustments. I'd also like to do some simple validation of fields for storing 
+  standard things like email addresses, and phone numbers. It looks like this could
+  be done pretty easily using Flask forms.
+  * Sanitizing json field values - I've read that SQLAlchemy handles quoting special 
+  characters in inputs on its own, so this may not be necessary, but given more time
+  I'd do further reading/testing to verify whether that is in fact the case.
+  * Improving error handling
+  * Adding logging where appropriate
