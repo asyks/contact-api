@@ -58,6 +58,13 @@ main () {
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/update \
     -w "${RETURN_HEADER_STR}"
 
+  printf "Update a contact some more\n"
+  curl -H "${REQUEST_HEADER}" -X PUT \
+    -d '{"id": 1, "address": "5263 Mountain Road, Mount Jervis, NY, 12864", "address_2": "Apartment 432"}' \
+    -u "${BASIC_AUTH_USER_PASS}" \
+    ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/update \
+    -w "${RETURN_HEADER_STR}"
+
   printf "Get a conatct by id\n"
   curl -H "${REQUEST_HEADER}" -X GET -d '{"id": 1}' \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact \
