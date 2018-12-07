@@ -16,21 +16,21 @@ main () {
 
   printf "Create a contact\n"
   curl -H "${REQUEST_HEADER}" -X POST \
-    -d '{"email": "foo@bar.com", "name": "baz", "company": "acme"}' \
+    -d '{"first_name": "foo", "last_name": "bar", "company": "acme", "email": "foo@bar.com"}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
     -w "${RETURN_HEADER_STR}"
 
   printf "Create a second contact\n"
   curl -H "${REQUEST_HEADER}" -X POST \
-    -d '{"email": "goo@bar.com", "name": "taz", "company": "acme"}' \
+    -d '{"last_name": "taz", "company": "acme", "home_phone": 15554762438, "mobile_phone": 14767852}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
     -w "${RETURN_HEADER_STR}"
 
   printf "Create a third contact\n"
   curl -H "${REQUEST_HEADER}" -X POST \
-    -d '{"email": "hoo@bar.com", "name": "saz", "company": "runner"}' \
+    -d '{"email": "goo@bar.com", "company": "runner", "address": "5263 River St, Port Jervis, NY, 12771", "address_2": "Apartment 216"}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
     -w "${RETURN_HEADER_STR}"
@@ -45,9 +45,9 @@ main () {
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contacts \
     -w "${RETURN_HEADER_STR}"
 
-  printf "Get a list of contacts filtered by email\n"
+  printf "Get a list of contacts filtered by email and company\n"
   curl -H "${REQUEST_HEADER}" -X GET \
-    -d '{"email": "foo@bar.com"}' \
+    -d '{"company": "acme", "email": "foo@bar.com"}' \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contacts \
     -w "${RETURN_HEADER_STR}"
 
@@ -70,61 +70,66 @@ main () {
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/delete \
     -w "${RETURN_HEADER_STR}"
 
+  printf "Get a list of contacts filtered by email\n"
+  curl -H "${REQUEST_HEADER}" -X GET \
+    -d '{"email": "foo@slash.com"}' \
+    ${DEFAULT_HOST}:${DEFAULT_PORT}/contacts \
+    -w "${RETURN_HEADER_STR}"
+
   printf "\n------------------------\n"
 
   # Error Requests
-  printf "Expect contact does not exist\n"
+  printf "Expect 400 json input invalid\n"
+  curl -H "${REQUEST_HEADER}" -X POST \
+    -d '{"email1": "z@bar.com", "name": "saz"}' \
+    -u "${BASIC_AUTH_USER_PASS}" \
+    ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
+    -w "${RETURN_HEADER_STR}"
+
+  printf "Expect 500 contact does not exist\n"
   curl -H "${REQUEST_HEADER}" -X PUT \
     -d '{"id": 5555, "email": "foo@slash.com"}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/update \
     -w "${RETURN_HEADER_STR}"
 
-  printf "Expect method type mismatch\n"
+  printf "Expect 405 method type mismatch create\n"
   curl -H "${REQUEST_HEADER}" -X GET \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
     -w "${RETURN_HEADER_STR}"
 
-  printf "Expect 'active' not supported\n"
+  printf "Expect 405 method type mismatch delete\n"
+  curl -H "${REQUEST_HEADER}" -X POST \
+    -u "${BASIC_AUTH_USER_PASS}" \
+    ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/delete \
+    -w "${RETURN_HEADER_STR}"
+
+  printf "Expect 400 json query invalid\n"
   curl -H "${REQUEST_HEADER}" -X GET \
     -d '{"active": false}' \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contacts \
     -w "${RETURN_HEADER_STR}"
 
-  printf "Expect invalid json request body\n"
+  printf "Expect 400 invalid json request body\n"
   curl -H "${REQUEST_HEADER}" -X POST \
     -d '{a}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
     -w "${RETURN_HEADER_STR}"
 
-  printf "Expect missing 'email' field\n"
-  curl -H "${REQUEST_HEADER}" -X POST \
-    -d '{"name": "foobar", "company": "acme"}' \
-    -u "${BASIC_AUTH_USER_PASS}" \
-    ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
-    -w "${RETURN_HEADER_STR}"
-
-  printf "Expect internal server error\n"
-  curl -H "${REQUEST_HEADER}" -X PUT \
-    -d '{"email": "foo@slash.com"}' \
-    -u "${BASIC_AUTH_USER_PASS}" \
-    ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/update \
-    -w "${RETURN_HEADER_STR}"
-
-  printf "Expect unauthorized against create\n"
+  printf "Expect 401 unauthorized create\n"
   curl -H "${REQUEST_HEADER}" -X POST \
     -d '{"email": "ioo@bar.com", "name": "laz", "company": "acme"}' \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
     -w "${RETURN_HEADER_STR}"
 
-  printf "Expect unauthorized against update\n"
+  printf "Expect 401 unauthorized update\n"
   curl -H "${REQUEST_HEADER}" -X PUT \
     -d '{"id": 1, "email": "foo@dash.com"}' \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/update \
     -w "${RETURN_HEADER_STR}"
 
-  printf "Expect unauthorized against delete\n"
+  printf "Expect 401 unauthorized delete\n"
   curl -H "${REQUEST_HEADER}" -X DELETE \
     -d '{"id": 1}' \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/delete \
