@@ -88,7 +88,7 @@ fields are:
 
 ## TODO
 
-Given more time to work on the project, there's a number of things I'd add or 
+Given more time to work on the project, there's a number of things I'd add or
 improve. In rough order of importance:
 
   * Moving the model class to a separate module - keeping the model and views in
@@ -99,7 +99,7 @@ improve. In rough order of importance:
   ideally support pagination to reduce load on the db for larger datasets.
   * Fine tuning model fields - I chose the datatypes and lengths for each
   field somewhat arbitrarily, and would like to take another pass over them and
-  make adjustments. I'd also like to do some simple validation of fields for storing 
+  make adjustments. I'd also like to do some simple validation of fields for storing
   standard things like email addresses, and phone numbers. It looks like this could
   be done pretty easily using Flask forms.
   * Sanitizing json field values - I've read that SQLAlchemy handles quoting special 
