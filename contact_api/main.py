@@ -18,7 +18,6 @@ app = Flask(__name__)
 app.config.update({
     "SQLALCHEMY_DATABASE_URI": "sqlite://",
     "SQLALCHEMY_TRACK_MODIFICATIONS": True,
-    "DEBUG": True,
 })
 
 db = SQLAlchemy(app)

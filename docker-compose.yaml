@@ -2,12 +2,15 @@ version: '3.3'
 
 services:
   contact-api:
-      build: .
-      stdin_open: true
-      tty: true
-      ports:
-        - '5000:5000'
-      volumes: 
-        - './contact_api:/opt/contact-api/contact_api'
-      env_file:
-        - vars.env
+    build:
+      context: .
+      args:
+        - DEBUG=0
+    stdin_open: true
+    tty: true
+    ports:
+      - '5000:5000'
+    volumes:
+      - './contact_api:/opt/contact-api/contact_api'
+    env_file:
+      - vars.env

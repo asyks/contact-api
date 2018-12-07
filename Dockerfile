@@ -3,8 +3,7 @@ FROM python:3.7-alpine
 ENV PROJECT_DIR=/opt/contact-api/ \
     VENV_DIR=/opt/contact-api/.venv \
     SOURCE_DIR=/opt/contact-api/contact_api
-ENV FLASK_APP=${SOURCE_DIR}/main.py \
-    FLASK_DEBUG=1
+ENV FLASK_APP=${SOURCE_DIR}/main.py
 
 # Install sqlite
 RUN apk update &&\
@@ -16,6 +15,10 @@ COPY ./requirements.txt ${PROJECT_DIR}
 RUN python -m venv ${VENV_DIR}
 RUN source ${VENV_DIR}/bin/activate
 RUN pip install -r ${PROJECT_DIR}/requirements.txt
+
+# Set debug mode
+ARG DEBUG=0
+ENV FLASK_DEBUG=${DEBUG}
 
 # Copy source code to image
 COPY ./contact_api ${SOURCE_DIR}

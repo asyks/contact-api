@@ -4,22 +4,29 @@ Python Take-Home Assignment: Contact API for Urban Airship Web Team
 ## Running the app
 
 ### With Docker and Docker Compose
-To build and run
+To build and run:
 
-```docker-compose up```
+```docker-compose up --build```
 
-To build only
+To build only:
 
 ```docker-compose build --force-rm```
 
 ### With Docker only
-Build the container
+Build the container:
 
 ```docker build -t contact-api .```
 
-Run the container
+Run the container:
 
 ```docker run --env-file=vars.env -p 127.0.0.1:5000:5000 -it contact-api```
+
+### Debug mode
+By default flask debug mode is set to 0/off via FLASK_DEBUG. To turn on debug mode
+edit the arg in docker-compose.yaml and rebuild with `docker-compose`, or build
+the image specifiying DEBUG=1 as a build-arg.
+
+```docker build --build-arg DEBUG=1 -t contact-api ```
 
 **Note:**
 I've run into an issue a couple times with apk failing to find or download
