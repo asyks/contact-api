@@ -21,6 +21,11 @@ Run the container
 
 ```docker run --env-file=vars.env -p 127.0.0.1:5000:5000 -it contact-api```
 
+**Note:**
+I've run into an issue a couple times with apk failing to find or download
+the sqlite package, normally just rerunning the build step fixes this problem,
+sometimes multiple reruns are required.
+
 ## Endpoints
 
 ### Create Contact
