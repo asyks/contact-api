@@ -34,9 +34,11 @@ The field id is required.
 
 ### Get multiple Contacts
 To get a list of contacts send a GET request with or without a json body to `/contacts`.
+By default all (active/non-deleted) contacts are returned.
 Contact records can be filtered by supplying json fields in the request body.
 The supported fields are: email and company. If both fields are supplied the
 result with be anded together, so email and company must match the values supplied.
+On success a 200 response containing the records should be sent to the client.
 
 ### Update Contact
 To update an existing contact send a PUT request with json body to `/contact/update`.
