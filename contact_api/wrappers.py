@@ -47,8 +47,7 @@ def validate_input_field_names(view):
             "last_name",
             "company",
             "email",
-            "home_phone",
-            "mobile_phone",
+            "phone",
             "address",
             "address_2",
         }

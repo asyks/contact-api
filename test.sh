@@ -23,7 +23,7 @@ main () {
 
   printf "Create a second contact\n"
   curl -H "${REQUEST_HEADER}" -X POST \
-    -d '{"last_name": "taz", "company": "acme", "home_phone": 15554762438, "mobile_phone": 14767852}' \
+    -d '{"last_name": "taz", "company": "acme", "phone": 15554762438}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
     -w "${RETURN_HEADER_STR}"
@@ -120,6 +120,13 @@ main () {
   printf "Expect 400 invalid json request body\n"
   curl -H "${REQUEST_HEADER}" -X POST \
     -d '{a}' \
+    -u "${BASIC_AUTH_USER_PASS}" \
+    ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
+    -w "${RETURN_HEADER_STR}"
+
+  printf "Expect 400 email invalid\n"
+  curl -H "${REQUEST_HEADER}" -X POST \
+    -d '{"first_name": "caz", "company": "acme", "email": "foobar"}' \
     -u "${BASIC_AUTH_USER_PASS}" \
     ${DEFAULT_HOST}:${DEFAULT_PORT}/contact/create \
     -w "${RETURN_HEADER_STR}"

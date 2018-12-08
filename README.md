@@ -87,8 +87,7 @@ no unique fields. The fields of the Contact model are:
   * last_name - string
   * company - string
   * email - string
-  * home_phone - integer
-  * mobile_phone - integer
+  * phone - integer
   * address - string
   * address_2 - string
   * updated_by - stores the username of the user who last changed the record
@@ -98,7 +97,7 @@ no unique fields. The fields of the Contact model are:
 Given more time to work on the project, there's a number of things I'd add or
 improve. I hadn't worked with flask in a while, and had to brush up on some of the
 basic concepts. In many cases I chose simple solutions the I felt met the
-requirements in leiu of more robust options. In rough order of importance:
+requirements in leiu of more robust options. Roughly in order of importance:
 
   * Moving the model class to a separate module - keeping the model and views in
   the same module seemed like the easiest way to ensure that everything references
@@ -108,9 +107,9 @@ requirements in leiu of more robust options. In rough order of importance:
   ideally support pagination to reduce load on the db for larger datasets.
   * Fine tuning model fields - I chose the datatypes and lengths for each
   field somewhat arbitrarily, and would like to take another pass over them and
-  make adjustments. I'd also like to do some simple validation of fields for storing
-  standard things like email addresses, and phone numbers. It looks like this could
-  be done pretty easily using Flask-WTF and/or WTForms.
+  make adjustments. I'd also like to do some additional syntax validation for fields
+  storing standard things like email addresses, and phone numbers. It looks like this
+  could be done pretty easily using Flask-WTF and/or WTForms.
   * Sanitizing json field values - I've read that SQLAlchemy handles quoting special 
   characters in inputs on its own, so this may not be necessary, but given more time
   I'd do further reading/testing to verify whether that is in fact the case.

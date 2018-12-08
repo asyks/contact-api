@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import re
+
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -30,8 +32,7 @@ class Contact(db.Model):
     last_name = db.Column(db.String(80), nullable=True)
     company = db.Column(db.String(80), nullable=True)
     email = db.Column(db.String(120), nullable=True)
-    home_phone = db.Column(db.Integer, nullable=True)
-    mobile_phone = db.Column(db.Integer, nullable=True)
+    phone = db.Column(db.Integer, nullable=True)
     address = db.Column(db.String(280), nullable=True)
     address_2 = db.Column(db.String(280), nullable=True)
     updated_by = db.Column(db.String(120), nullable=False)
@@ -44,8 +45,7 @@ class Contact(db.Model):
             "last_name": self.last_name,
             "company": self.company,
             "email": self.email,
-            "home_phone": self.home_phone,
-            "mobile_phone": self.mobile_phone,
+            "phone": self.phone,
             "address": self.address,
             "address_2": self.address_2,
             "updated_by": self.updated_by,
@@ -77,6 +77,13 @@ def error_resp_msg(msg):
     }
 
 
+def validate_email(email):
+    """ Raise an exception if email field doesn't match a standard pattern. """
+    pattern = re.compile(r"[^@]+@[^@]+\.[^@]+")
+    if not pattern.match(email):
+        raise BadRequest("The value of the email field was invalid")
+
+
 @app.route("/")
 def hello():
     msg = success_resp_msg("contact-api by asyks, hello!")
@@ -96,6 +103,9 @@ def get_one_contact():
 @wrappers.requires_auth
 @wrappers.validate_input_field_names
 def create_contact():
+    if "email" in request.json:
+        validate_email(request.json["email"])
+
     contact = Contact(
         updated_by=request.authorization.username,
         **request.json
@@ -113,6 +123,9 @@ def create_contact():
 @wrappers.requires_id
 @wrappers.validate_input_field_names
 def update_contact():
+    if "email" in request.json:
+        validate_email(request.json["email"])
+
     data = request.json.copy()
     data["updated_by"] = request.authorization.username
 
